@@ -56,7 +56,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
         }
       })
     app.listen(3000);
-    console.log("Database connected and server started on 3000");
+    console.log("Database connected and server started on 300!!!!!");
   })
   .catch(err => {
     console.log(err);
