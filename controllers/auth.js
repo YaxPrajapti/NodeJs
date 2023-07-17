@@ -13,7 +13,12 @@ exports.postLogin = (req, res, next) => {
         .then(user => {
             req.session.isloggedIn = true;
             req.session.user = user;
-            res.redirect('/');
+            req.session.save((err) => {
+                if(err){
+                    console.log(err); 
+                }
+                res.redirect('/');
+            })
         })
         .catch(err => console.log(err));
 };
@@ -23,5 +28,17 @@ exports.postLogout = (req, res, next) => {
         console.log(req.session);
         res.redirect('/'); 
     });  
+}; 
+
+exports.getSignup = (req, res, next) => {
+    res.render('auth/signup', {
+        pageTitle: 'Sign Up',
+        path: '/signup',
+        isAuthenticated: false, 
+    });
+};
+
+exports.postSignup = (req, res, next) => {
+
 }
 

@@ -32,7 +32,19 @@ app.use(session({
   store: store, 
 }))
 
-
+app.use((req, res, next) => {
+  if(!req.session.user){
+    return next(); 
+  }
+  User.findById(req.session.user._id)
+    .then(user => {
+      req.user = user; 
+      next(); 
+  })
+    .catch(err => {
+      console.log(err);
+    })
+})
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
@@ -56,7 +68,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
         }
       })
     app.listen(3000);
-    console.log("Database connected and server started on 300!!!!!");
+    console.log("Database connected and server started on 3000!!!!");
   })
   .catch(err => {
     console.log(err);
