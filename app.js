@@ -1,21 +1,27 @@
+require('dotenv').config(); 
+
 const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
-const MongoDBStore = require('connect-mongodb-session')(session);
+var MongoDBStore = require('connect-mongodb-session')(session);
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 
-const MONGO_URI = 'mongodb://yaxprajapati6504:DJM73pS3xDzHWcC3@ac-zikuyxm-shard-00-00.m7tzssz.mongodb.net:27017,ac-zikuyxm-shard-00-01.m7tzssz.mongodb.net:27017,ac-zikuyxm-shard-00-02.m7tzssz.mongodb.net:27017/Shop?ssl=true&replicaSet=atlas-nbfqym-shard-0&authSource=admin&retryWrites=true&w=majority'; 
+const MONGO_URI = process.env.MONGO_URI; 
 
 const app = express();
-const store = new MongoDBStore({
+var store = new MongoDBStore({
   uri: MONGO_URI,
   collection: 'mySessions'
 });
+store.on('error', function(error) {
+  console.log(error);
+});
+
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
@@ -52,15 +58,19 @@ app.use(authRoutes);
 
 app.use(errorController.get404);
 
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true  })
+console.log("Starting the server...");
+mongoose.connect(MONGO_URI,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => {
+    console.log("Connceted to database, Now starting server.... ");
     app.listen(3000);
-    console.log("Database connected and server started on 3000!!!!");
+  })
+  .then(() => {
+    console.log("Connection established successfully.");
   })
   .catch(err => {
     console.log(err);
   })
-
-  
-
-  

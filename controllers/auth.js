@@ -12,15 +12,27 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-    User.findById('64abace0271c372330997ca9')
+    const {email, password} = req.body; 
+    User.findOne({email: email})
         .then(user => {
-            req.session.isloggedIn = true;
-            req.session.user = user;
-            req.session.save((err) => {
-                if (err) {
-                    console.log(err);
+            if(!user){
+                return res.redirect('/login'); 
+            }
+            bcrypt.compare(password, user.password) //bcrypt.comapare() returns the boolean value if the password matches or not? 
+            .then(isMatched => {
+                if(isMatched){
+                    req.session.isloggedIn = true; 
+                    req.session.user = user; 
+                    return req.session.save(err => {
+                        console.log(err); 
+                        res.redirect("/");
+                    })
                 }
-                res.redirect('/');
+                res.redirect('/'); 
+            })
+            .catch(err => {
+                console.log(err);
+                res.redirect("/")
             })
         })
         .catch(err => console.log(err));
@@ -48,16 +60,16 @@ exports.postSignup = (req, res, next) => {
             if (userDoc) {
                 return res.redirect('/signup');
             }
-            return bcrypt.hash(password, 12); 
-        })
-        .then((hashedPassword) => {
-            const user = new User({
-                name: username, 
-                email: email, 
-                password: hashedPassword, 
-                cart: {items: []}, 
-            })
-            return user.save(); 
+            return bcrypt.hash(password, 12)
+                .then((hashedPassword) => {
+                    const user = new User({
+                        name: username,
+                        email: email,
+                        password: hashedPassword,
+                        cart: { items: [] },
+                    })
+                    return user.save();
+                })
         })
         .then(user => {
             console.log(user);
