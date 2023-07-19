@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 var MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf'); 
+const flash = require('connect-flash'); 
+const morgan = require('morgan');
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
@@ -42,6 +44,7 @@ app.use(session({
 }))
 //csrf must be used after creating session. 
 app.use(csrfProtection); 
+app.use(flash()); 
 
 app.use((req, res, next) => {
   if(!req.session.user){
@@ -61,7 +64,9 @@ app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isloggedIn;
   res.locals.csrfToken = req.csrfToken(); 
   next(); 
-})
+}); 
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms')); 
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
