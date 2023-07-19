@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 var MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf'); 
 
 const errorController = require('./controllers/error');
 const User = require('./models/user');
@@ -18,6 +19,8 @@ var store = new MongoDBStore({
   uri: MONGO_URI,
   collection: 'mySessions'
 });
+const csrfProtection = csrf(); 
+
 store.on('error', function(error) {
   console.log(error);
 });
@@ -37,6 +40,8 @@ app.use(session({
   saveUninitialized: false,
   store: store, 
 }))
+//csrf must be used after creating session. 
+app.use(csrfProtection); 
 
 app.use((req, res, next) => {
   if(!req.session.user){
@@ -50,6 +55,12 @@ app.use((req, res, next) => {
     .catch(err => {
       console.log(err);
     })
+});
+
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isloggedIn;
+  res.locals.csrfToken = req.csrfToken(); 
+  next(); 
 })
 
 app.use('/admin', adminRoutes);
