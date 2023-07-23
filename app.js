@@ -73,6 +73,9 @@ app.use(shopRoutes);
 app.use(authRoutes); 
 
 app.use(errorController.get404);
+process.on('uncaughtException', function (err) {
+  console.log(err);
+}); 
 
 console.log("Starting the server...");
 mongoose.connect(MONGO_URI,
@@ -82,7 +85,7 @@ mongoose.connect(MONGO_URI,
   })
   .then(() => {
     console.log("Connceted to database, Now starting server.... ");
-    app.listen(3000);
+    app.listen(process.env.PORT); 
   })
   .then(() => {
     console.log("Connection established successfully.");
