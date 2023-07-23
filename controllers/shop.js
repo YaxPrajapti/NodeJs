@@ -2,12 +2,19 @@ const Order = require('../models/order');
 const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
+  let message = req.flash('error'); 
+  if(message.length > 0){
+    message = message[0]; 
+  }else {
+    message = null; 
+  }
   Product.find()
     .then(products => {
       res.render('shop/product-list', {
         prods: products,
         pageTitle: 'All Products',
         path: '/products',
+        errorMessage: message, 
       });
     })
     .catch(err => {
